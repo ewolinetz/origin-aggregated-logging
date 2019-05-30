@@ -1,35 +1,39 @@
-FROM openshift/base-centos7
+FROM centos/nodejs-10-centos7 AS builder
+
+ENV KIBANA_VERSION=6.8.0 \
+    KIBANA_DOWNLOAD_URI=https://artifacts.elastic.co/downloads/kibana/
+
+RUN KIBANA_PACKAGE=kibana-${KIBANA_VERSION}-linux-x86_64.tar.gz && \
+    curl -s ${KIBANA_DOWNLOAD_URI}${KIBANA_PACKAGE} -o /tmp/${KIBANA_PACKAGE} && \
+    tar -C /tmp -xzf /tmp/${KIBANA_PACKAGE} --exclude 'node'
+
+FROM centos/nodejs-10-centos7
 
 MAINTAINER OpenShift Development <dev@lists.openshift.redhat.com>
 
 EXPOSE 5601
 
-ENV ELASTICSEARCH_URL=https://logging-es:9200 \
+ENV ELASTICSEARCH_URL=https://elasticsearch:9200 \
     HOME=/opt/app-root/src \
-    KIBANA_BIN=/usr/share/kibana/bin/kibana \
-    KIBANA_CONF_DIR=/etc/kibana \
-    KIBANA_HOME=/usr/share/kibana \
-    KIBANA_VER=5.6.13 \
-    RELEASE_STREAM=origin
+    KIBANA_CONF_DIR=${HOME}/config \
+    KIBANA_VERSION=6.8.0 \
+    RELEASE_STREAM=origin \
+    NODE_ENV=production
 
 LABEL io.k8s.description="Kibana container for querying Elasticsearch for aggregated logs" \
       io.k8s.display-name="Kibana" \
       io.openshift.expose-services="5601:http" \
       io.openshift.tags="logging,elk,kibana"
 
-ADD kibana.repo /etc/yum.repos.d/kibana.repo
-# install the RPMs in a separate step so it can be cached
-RUN rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch && \
-    INSTALLED_PKGS="kibana-${KIBANA_VER}" && \
-    yum install -y --setopt=tsflags=nodocs  ${INSTALLED_PKGS} && \
-    yum clean all
+USER 0
 
+COPY --from=builder /tmp/kibana-${KIBANA_VERSION}-linux-x86_64/ ${HOME}/
+
+RUN chmod -R og+w ${HOME}/
 ADD probe/ /usr/share/kibana/probe/
 ADD kibana.yml ${KIBANA_CONF_DIR}/
-ADD lib/* ${HOME}/
-ADD patches/ ${HOME}/patches/
-ADD run.sh utils install.sh prep-install.${RELEASE_STREAM} ${HOME}/
-RUN ${HOME}/install.sh
+ADD run.sh utils ${HOME}/
+RUN bin/kibana --optimize
 
 WORKDIR ${HOME}
 CMD ["./run.sh"]
