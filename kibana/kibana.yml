@@ -99,7 +99,7 @@ elasticsearch.requestHeadersWhitelist: [ 'authorization', 'X-Proxy-Remote-User',
 #logging.silent: false
 
 # Set the value of this setting to true to suppress all logging output other than error messages.
-logging.quiet: true
+#logging.quiet: true
 
 # Set the value of this setting to true to log all events, including system usage information
 # and all requests.
@@ -113,6 +113,7 @@ logging.quiet: true
 #i18n.locale: "en"
 
 # X-Pack and provided plugin settings/disabling
+opendistro_security.allow_client_certificates: true
 index_management.enabled: false
 rollup.enabled: false
 xpack.apm.enabled: false
@@ -122,11 +123,12 @@ xpack.graph.enabled: false
 xpack.ilm.enabled: false
 #xpack.infra.enabled: false
 xpack.infra.sources.default.logAlias: project.*,.operations.*
-xpack.maps.enabled: false
+#xpack.maps.enabled: false
 xpack.ml.enabled: false
 xpack.monitoring.enabled: false
 xpack.remote_clusters.enabled: false
 xpack.reporting.enabled: false
 #xpack.searchprofiler.enabled: false
+xpack.security.enabled: false
 xpack.spaces.enabled: false
-xpack.uptime.enabled: false
+#xpack.uptime.enabled: false

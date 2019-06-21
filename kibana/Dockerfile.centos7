@@ -1,6 +1,6 @@
 FROM centos/nodejs-10-centos7 AS builder
 
-ENV KIBANA_VERSION=6.8.0 \
+ENV KIBANA_VERSION=6.6.2 \
     KIBANA_DOWNLOAD_URI=https://artifacts.elastic.co/downloads/kibana/ \
     SECURITY_PLUGIN_VERSION=0.9.0.0 \
     SECURITY_PLUGIN_URI=https://github.com/opendistro-for-elasticsearch/security-kibana-plugin/archive/v \
@@ -8,7 +8,7 @@ ENV KIBANA_VERSION=6.8.0 \
 
 RUN KIBANA_PACKAGE=kibana-${KIBANA_VERSION}-linux-x86_64.tar.gz && \
     curl -s ${KIBANA_DOWNLOAD_URI}${KIBANA_PACKAGE} -o /tmp/${KIBANA_PACKAGE} && \
-    tar -C /tmp -xzf /tmp/${KIBANA_PACKAGE} --exclude 'node'
+    tar -C /tmp -xzf /tmp/${KIBANA_PACKAGE}
 
 RUN curl -Ls ${SECURITY_PLUGIN_URI}${SECURITY_PLUGIN_VERSION}.tar.gz -o /tmp/${SECURITY_PLUGIN_NAME}.tar.gz && \
     tar -C /tmp -xzf /tmp/${SECURITY_PLUGIN_NAME}.tar.gz && \
@@ -30,7 +30,7 @@ EXPOSE 5601
 ENV ELASTICSEARCH_URL=https://elasticsearch:9200 \
     HOME=/opt/app-root/src \
     KIBANA_CONF_DIR=${HOME}/config \
-    KIBANA_VERSION=6.8.0 \
+    KIBANA_VERSION=6.6.2 \
     SECURITY_PLUGIN_NAME=opendistro_security \
     RELEASE_STREAM=origin \
     NODE_ENV=production

@@ -24,6 +24,7 @@ response_code="$(
     curl --silent                          \
          --head                            \
          --output /dev/null                \
+         -L                                \
          --max-time "${max_time}"          \
          --write-out '%{response_code}'    \
          "${KIBANA_REST_BASEURL}"

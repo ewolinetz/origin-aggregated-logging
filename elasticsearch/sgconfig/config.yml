@@ -1,0 +1,32 @@
+opendistro_security:
+  dynamic:
+    http:
+      xff:
+        enabled: true
+        remoteIpHeader: 'x-forwarded-for'
+        trustedProxies: '.*'
+        internalProxies: '.*'
+    authc:
+      proxy_auth_domain:
+        http_enabled: true
+        transport_enabled: true
+        order: 0
+        http_authenticator:
+          challenge: false
+          type: proxy
+          config:
+            user_header: 'x-forwarded-user'
+            roles_header: 'x-forwarded-roles'
+        authentication_backend:
+          type: noop
+      clientcert_auth_domain:
+        http_enabled: true
+        transport_enabled: true
+        order: 1
+        http_authenticator:
+          type: clientcert
+          config:
+            username_attribute: dn
+          challenge: false
+        authentication_backend:
+          type: noop
