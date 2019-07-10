@@ -113,7 +113,7 @@ elasticsearch.requestHeadersWhitelist: [ 'authorization', 'X-Proxy-Remote-User',
 #i18n.locale: "en"
 
 # X-Pack and provided plugin settings/disabling
-opendistro_security.allow_client_certificates: true
+#opendistro_security.allow_client_certificates: true
 index_management.enabled: false
 rollup.enabled: false
 xpack.apm.enabled: false

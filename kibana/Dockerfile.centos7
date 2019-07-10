@@ -1,25 +1,11 @@
 FROM centos/nodejs-10-centos7 AS builder
 
 ENV KIBANA_VERSION=6.6.2 \
-    KIBANA_DOWNLOAD_URI=https://artifacts.elastic.co/downloads/kibana/ \
-    SECURITY_PLUGIN_VERSION=0.9.0.0 \
-    SECURITY_PLUGIN_URI=https://github.com/opendistro-for-elasticsearch/security-kibana-plugin/archive/v \
-    SECURITY_PLUGIN_NAME=opendistro_security
+    KIBANA_DOWNLOAD_URI=https://artifacts.elastic.co/downloads/kibana/ 
 
 RUN KIBANA_PACKAGE=kibana-${KIBANA_VERSION}-linux-x86_64.tar.gz && \
     curl -s ${KIBANA_DOWNLOAD_URI}${KIBANA_PACKAGE} -o /tmp/${KIBANA_PACKAGE} && \
     tar -C /tmp -xzf /tmp/${KIBANA_PACKAGE}
-
-RUN curl -Ls ${SECURITY_PLUGIN_URI}${SECURITY_PLUGIN_VERSION}.tar.gz -o /tmp/${SECURITY_PLUGIN_NAME}.tar.gz && \
-    tar -C /tmp -xzf /tmp/${SECURITY_PLUGIN_NAME}.tar.gz && \
-    mv /tmp/security-kibana-plugin-${SECURITY_PLUGIN_VERSION} /tmp/${SECURITY_PLUGIN_NAME} && \
-    pushd /tmp/${SECURITY_PLUGIN_NAME} && \
-    sed -n -i -e 's/"version": ".*",/"version": "'"${KIBANA_VERSION}"'",/' \
-              -e '/"dependencies": {/,/"$/{s/"$/",/}' \
-              -e '/"devDependencies": {/{n;x;d};x;1d;p;${x;p}' package.json && \
-# for some reason this is missing from path unless we run the image
-    PATH=/opt/rh/rh-nodejs10/root/usr/bin:$PATH npm install && \
-    popd
 
 FROM centos/nodejs-10-centos7
 
@@ -31,7 +17,6 @@ ENV ELASTICSEARCH_URL=https://elasticsearch:9200 \
     HOME=/opt/app-root/src \
     KIBANA_CONF_DIR=${HOME}/config \
     KIBANA_VERSION=6.6.2 \
-    SECURITY_PLUGIN_NAME=opendistro_security \
     RELEASE_STREAM=origin \
     NODE_ENV=production
 
@@ -43,7 +28,6 @@ LABEL io.k8s.description="Kibana container for querying Elasticsearch for aggreg
 USER 0
 
 COPY --from=builder /tmp/kibana-${KIBANA_VERSION}-linux-x86_64/ ${HOME}/
-COPY --from=builder /tmp/${SECURITY_PLUGIN_NAME} ${HOME}/plugins/${SECURITY_PLUGIN_NAME}
 
 RUN chmod -R og+w ${HOME}/
 ADD probe/ /usr/share/kibana/probe/
