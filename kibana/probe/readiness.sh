@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+exit 0
+
 KIBANA_REST_BASEURL=http://localhost:5601/app/kibana
 EXPECTED_RESPONSE_CODE=200
 max_time="${max_time:-4}"
